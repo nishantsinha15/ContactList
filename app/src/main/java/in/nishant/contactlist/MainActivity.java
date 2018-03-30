@@ -1,5 +1,9 @@
 package in.nishant.contactlist;
 
+//TODO 1. Add Image
+//TODO 2. Edit/Delete Contact
+
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,8 +13,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -23,28 +30,56 @@ public class MainActivity extends Activity {
     DatabaseReference mDatabase, mUsersList;
     ArrayList<User> db = new ArrayList<User>();
     ImageButton button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
-        recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+        setDatabase();
+        setRecyclerView();
         button = findViewById(R.id.button);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mUsersList = mDatabase.child("Users");
-        mAdapter = new MyAdapter(db);
-        recyclerView.setAdapter(mAdapter);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Clicked");
                 Intent intent = new Intent( MainActivity.this, CreateContact.class );
                 MainActivity.this.startActivity(intent);
-                finish();
             }
         });
+    }
+
+    public void setDatabase() {
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mUsersList = mDatabase.child("Users");
+        ValueEventListener contactListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                // ...
+                Iterable<DataSnapshot> dataSnapshotIter = dataSnapshot.getChildren();
+                db = new ArrayList<User>();
+                for( DataSnapshot w : dataSnapshotIter )
+                    db.add( w.getValue(User.class) );
+                mAdapter = new MyAdapter(db);
+                recyclerView.swapAdapter(mAdapter, false);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+            }
+        };
+        mUsersList.addValueEventListener(contactListener);
+    }
+
+    public void setRecyclerView()
+    {
+        recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        mAdapter = new MyAdapter(db);
+        recyclerView.setAdapter(mAdapter);
     }
 }
 
