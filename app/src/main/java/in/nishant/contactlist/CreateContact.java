@@ -32,7 +32,7 @@ public class CreateContact extends AppCompatActivity {
     ProgressDialog progressDialog;
     UploadTask uploadTask;
     ImageView imageView;
-
+    int flag = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +61,7 @@ public class CreateContact extends AppCompatActivity {
         switch (requestCode) {
             case SELECT_PHOTO:
                 if (resultCode == RESULT_OK) {
+                    flag = 1;
                     Toast.makeText(CreateContact.this,"Image selected, click on upload button",Toast.LENGTH_SHORT).show();
                     selectedImage = imageReturnedIntent.getData();
                 }
@@ -87,16 +88,15 @@ public class CreateContact extends AppCompatActivity {
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(CreateContact.this,"Error in uploading!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(CreateContact.this,"Error in uploading image! Try again.",Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                User user = new User(name.getText().toString(), phone.getText().toString(), email.getText().toString() );
+                User user = new User(name.getText().toString(), phone.getText().toString(), email.getText().toString(), "true" );
                 mUsersList.child(phone.getText().toString()).setValue(user);
-                Toast.makeText(CreateContact.this,"Upload successful",Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss();
                 Picasso.with(CreateContact.this).load(downloadUrl).into(imageView);
             }
@@ -111,8 +111,20 @@ public class CreateContact extends AppCompatActivity {
 
     public void saveChanges( View view )
     {
-        Log.d("Nishant", "Clicked submit");
-        uploadImage();
+        if( phone.getText().toString().equals("") )
+        {
+            Toast.makeText(CreateContact.this,"Phone Number cannot be empty",Toast.LENGTH_SHORT).show();
+            finish();
+        }
+        else {
+            Log.d("Nishant", "Clicked submit");
+            if (flag == 0) {
+                User user = new User(name.getText().toString(), phone.getText().toString(), email.getText().toString(), "false");
+                mUsersList.child(phone.getText().toString()).setValue(user);
+            } else
+                uploadImage();
+            Toast.makeText(CreateContact.this, "Upload successful", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

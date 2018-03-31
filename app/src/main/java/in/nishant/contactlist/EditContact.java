@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -38,21 +40,45 @@ public class EditContact extends AppCompatActivity {
     UploadTask uploadTask;
     ImageView imageView;
     int flag = 0;
-
+    String sname = "", semail = "", sphone = "", spicture = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_contact);
+
+        name = findViewById(R.id.textInputLayout1);
+        email = findViewById(R.id.emailInput1);
+        phone = findViewById(R.id.phoneInput1);
+        imageView = (ImageView) findViewById(R.id.imageView2);
+
+
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        String name = extras.getString("name");
-        String phone = extras.getString("phone");
-        String email = extras.getString("email");
-        initialUser = new User(name, phone , email );
+        sname = extras.getString("name");
+        sphone = extras.getString("phone");
+        semail = extras.getString("email");
+        spicture = extras.getString("picture");
+        initialUser = new User(sname, sphone , semail, spicture );
+
+        name.setText(sname);
+        email.setText(semail);
+        phone.setText(sphone);
+        if( spicture.equals("true") )
+        {
+            //todo Download image
+            // Reference to an image file in Firebase Storage
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+            StorageReference img = storageReference.child("Users/"+sphone);
+
+            // Load the image using Glide
+            Glide.with(EditContact.this)
+                    .using(new FirebaseImageLoader())
+                    .load(img)
+                    .into(imageView);
+        }
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mUsersList = mDatabase.child("Users");
-        imageView = (ImageView) findViewById(R.id.imageView2);
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
     }
@@ -105,7 +131,7 @@ public class EditContact extends AppCompatActivity {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                User user = new User(name.getText().toString(), phone.getText().toString(), email.getText().toString() );
+                User user = new User(name.getText().toString(), phone.getText().toString(), email.getText().toString(), "true" );
                 mUsersList.child(phone.getText().toString()).setValue(user);
                 Toast.makeText(EditContact.this,"Upload successful",Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss();
@@ -141,14 +167,38 @@ public class EditContact extends AppCompatActivity {
 
     public void saveChanges( View view )
     {
-        Log.d("Nishant", "Clicked submit");
-        if( flag == 1 )
-            uploadImage();
-        else
+        if( phone.getText().toString().equals("") )
         {
-            User user = new User(name.getText().toString(), phone.getText().toString(), email.getText().toString() );
-            mUsersList.child(phone.getText().toString()).setValue(user);
-            Toast.makeText(EditContact.this,"Upload successful",Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditContact.this,"Phone Number cannot be empty",Toast.LENGTH_SHORT).show();
+            finish();
+        }
+        else {
+            Log.d("Nishant", "Clicked submit");
+            if (!sphone.equals(phone.getText().toString())) {
+                Query q = mUsersList.orderByChild("phone").equalTo(sphone);
+                q.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot appleSnapshot : dataSnapshot.getChildren()) {
+                            appleSnapshot.getRef().removeValue();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e("Nishant", "onCancelled", databaseError.toException());
+                    }
+                });
+            }
+
+            if (flag == 1)
+                uploadImage();
+            else {
+                User user = new User(name.getText().toString(), phone.getText().toString(), email.getText().toString(), "false");
+                mUsersList.child(phone.getText().toString()).setValue(user);
+                //todo If number changed, change the number of the photo too
+                Toast.makeText(EditContact.this, "Upload successful", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

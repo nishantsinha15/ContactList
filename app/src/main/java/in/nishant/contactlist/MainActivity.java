@@ -78,23 +78,18 @@ public class MainActivity extends Activity {
         ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                String phoneNumber = db.get(position).phone;
+                User user = db.get(position);
                 Intent intent = new Intent(MainActivity.this, ViewContact.class);
-                intent.putExtra("phone", phoneNumber);
-                Log.d("Nishant", phoneNumber );
+                Bundle extras = new Bundle();
+                extras.putString("name",user.name);
+                extras.putString("phone",user.phone);
+                extras.putString("email", user.email);
+                extras.putString("picture", user.picture);
+                intent.putExtras(extras);
+                Log.d("Nishant", user.phone );
                 startActivity(intent);
             }
         });
     }
-
-    public void viewContact( View view )
-    {
-        Log.d("Nishant", "Clicked edit Contact");
-        Intent intent = new Intent( MainActivity.this, ViewContact.class );
-//        MainActivity.this.startActivity( intent );
-        TextView t = findViewById(R.id.phone);
-//        Toast.makeText(MainActivity.this,t.getText().toString(),Toast.LENGTH_SHORT).show();
-    }
-
 
 }

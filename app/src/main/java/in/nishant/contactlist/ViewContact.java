@@ -8,13 +8,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 
@@ -31,8 +36,11 @@ public class ViewContact extends AppCompatActivity {
         extras.putString("name",user.name);
         extras.putString("phone",user.phone);
         extras.putString("email", user.email);
+        extras.putString("picture", user.picture);
         intent.putExtras(extras);
+        Log.d("Nishant", "Sending to editing " + sname + " " + semail + " " + sphone );
         this.startActivity( intent );
+        finish();
     }
 
     @Override
@@ -46,42 +54,47 @@ public class ViewContact extends AppCompatActivity {
 
     public void setUpOldData()
     {
+        imageView = findViewById(R.id.imageView2);
         name = findViewById(R.id.textInputLayout1);
         email = findViewById(R.id.emailInput1);
         phone = findViewById(R.id.phoneInput1);
-        Intent mIntent = getIntent();
-        if( mIntent == null )
-            return;
-        Bundle x = mIntent.getExtras();
-        if( x != null ) {
-            String phoneQuery = x.getString("phone");
-            Query q = mUsersList.orderByChild("phone").equalTo(phoneQuery);
-            q.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot appleSnapshot : dataSnapshot.getChildren()) {
-                        HashMap<String, String> u =  (HashMap)appleSnapshot.getValue();
-                        sname = u.get("name");
-                        semail = u.get("email");
-                        sphone = u.get("phone");
-                        name.setText(sname);
-                        email.setText(semail);
-                        phone.setText(sphone);
-                        user = new User(sname, sphone, semail);
-                        Log.d("Nishant", "A " + sname + " " + semail + " " + sphone );
-                        break;
-                    }
-                }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.e("Nishant", "onCancelled", databaseError.toException());
-                }
-            });
+
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        sname = extras.getString("name");
+        sphone = extras.getString("phone");
+        semail = extras.getString("email");
+        spicture = extras.getString("picture");
+
+        name.setText(sname);
+        email.setText(semail);
+        phone.setText(sphone);
+        user = new User(sname, sphone, semail, spicture);
+        if( spicture.equals("true") )
+        {
+            //todo Downlaod image
+            // Reference to an image file in Firebase Storage
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+            StorageReference img = storageReference.child("Users/"+sphone);
+
+            // Load the image using Glide
+            Glide.with(ViewContact.this)
+                    .using(new FirebaseImageLoader())
+                    .load(img)
+                    .into(imageView);
         }
+
+    }
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finish();
     }
     User user;
     TextInputEditText name, email, phone;
     String sname = "", semail=  "", sphone = "";
+    String spicture = "false";
+    ImageView imageView;
     DatabaseReference mUsersList, mDatabase;
 
 }
