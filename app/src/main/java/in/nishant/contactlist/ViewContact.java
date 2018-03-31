@@ -1,8 +1,12 @@
 package in.nishant.contactlist;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,9 +29,36 @@ import java.util.HashMap;
 
 public class ViewContact extends AppCompatActivity {
 
-    public void sendMail( View view ){}
+    public void sendMail(View view) {
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        String mailAddress = "mailto: " + email.getText().toString();
+        emailIntent.setData(Uri.parse(mailAddress));
+        startActivity(Intent.createChooser(emailIntent, "Send Mail"));
+    }
 
-    public void makeCall( View view ){}
+    public void makeCall(View view) {
+        Log.d("Nishant", "Calling");
+        String number = ("tel:" + phone.getText().toString());
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        intent.setData(Uri.parse(number));
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Ask for calling permission
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            finish();
+        }
+        else
+            startActivity(intent);
+
+    }
+
+
+
 
     public void editContact( View view ){
         Intent intent = new Intent( ViewContact.this, EditContact.class );

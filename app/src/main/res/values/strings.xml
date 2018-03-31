@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Contact List</string>
+    <string name="name">Name</string>
+    <string name="phone">Phone</string>
+    <string name="email">E-mail</string>
+    <string name="edit_contact">Edit Contact</string>
+    <string name="delete">Delete</string>
+    <string name="save_changes">Save Changes</string>
+
+
 </resources>

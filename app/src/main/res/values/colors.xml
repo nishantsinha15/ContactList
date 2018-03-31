@@ -3,4 +3,6 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="accent_device_default_light">#960000</color>
+    <color name="background_material_light">#37f4a5</color>
 </resources>

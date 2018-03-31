@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="in.nishant.contactlist">
 
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -20,7 +21,12 @@
         </activity>
         <activity android:name=".CreateContact" />
         <activity android:name=".EditContact" />
-        <activity android:name=".ViewContact"></activity>
+        <activity android:name=".ViewContact" >
+            <intent-filter>
+                <action android:name="android.intent.action.CALL_PRIVILEGED" />
+                <data android:scheme="tel" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
