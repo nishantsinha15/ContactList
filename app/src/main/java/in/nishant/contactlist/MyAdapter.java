@@ -4,6 +4,7 @@ package in.nishant.contactlist;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,15 +16,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private ArrayList<User> values;
     public class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView txtHeader;
-        public TextView txtFooter;
+        public TextView name;
+        public TextView phone;
         public View layout;
 
         public ViewHolder(View v) {
             super(v);
             layout = v;
-            txtHeader = (TextView) v.findViewById(R.id.firstLine);
-            txtFooter = (TextView) v.findViewById(R.id.secondLine);
+            name = (TextView) v.findViewById(R.id.name);
+            phone = (TextView) v.findViewById(R.id.phone);
         }
     }
 
@@ -62,15 +63,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         final User name = values.get(position);
-        holder.txtHeader.setText(name.name);
-        holder.txtHeader.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                remove(position);
-            }
-        });
-
-        holder.txtFooter.setText("Footer: " + name.email);
+        holder.name.setText(name.name);
+        holder.phone.setText("Footer: " + name.phone);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -78,5 +72,4 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     public int getItemCount() {
         return values.size();
     }
-
 }

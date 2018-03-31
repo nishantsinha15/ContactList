@@ -1,17 +1,16 @@
 package in.nishant.contactlist;
 
-//TODO 1. Add Image
-//TODO 2. Edit/Delete Contact
-
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,7 +25,6 @@ public class MainActivity extends Activity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
     final String TAG = "TAG";
-    private int iter = 10000;
     DatabaseReference mDatabase, mUsersList;
     ArrayList<User> db = new ArrayList<User>();
     ImageButton button;
@@ -37,15 +35,13 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         setDatabase();
         setRecyclerView();
-        button = findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Clicked");
-                Intent intent = new Intent( MainActivity.this, CreateContact.class );
-                MainActivity.this.startActivity(intent);
-            }
-        });
+    }
+
+    public void createContact( View view )
+    {
+        Log.d("Nishant", "Clicked create Contact");
+        Intent intent = new Intent( MainActivity.this, CreateContact.class );
+        MainActivity.this.startActivity(intent);
     }
 
     public void setDatabase() {
@@ -54,8 +50,7 @@ public class MainActivity extends Activity {
         ValueEventListener contactListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
-                // ...
+                Log.d("Nishant", "Data Changed");
                 Iterable<DataSnapshot> dataSnapshotIter = dataSnapshot.getChildren();
                 db = new ArrayList<User>();
                 for( DataSnapshot w : dataSnapshotIter )
@@ -80,32 +75,26 @@ public class MainActivity extends Activity {
         recyclerView.setLayoutManager(layoutManager);
         mAdapter = new MyAdapter(db);
         recyclerView.setAdapter(mAdapter);
+        ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+            @Override
+            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                String phoneNumber = db.get(position).phone;
+                Intent intent = new Intent(MainActivity.this, ViewContact.class);
+                intent.putExtra("phone", phoneNumber);
+                Log.d("Nishant", phoneNumber );
+                startActivity(intent);
+            }
+        });
     }
+
+    public void viewContact( View view )
+    {
+        Log.d("Nishant", "Clicked edit Contact");
+        Intent intent = new Intent( MainActivity.this, ViewContact.class );
+//        MainActivity.this.startActivity( intent );
+        TextView t = findViewById(R.id.phone);
+//        Toast.makeText(MainActivity.this,t.getText().toString(),Toast.LENGTH_SHORT).show();
+    }
+
+
 }
-
-//public class MainActivity extends AppCompatActivity {
-//
-//    DatabaseReference mDatabase, mTest;
-//    private final String TAG = "tag";
-//    private Button submit;
-//
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//        mDatabase = FirebaseDatabase.getInstance().getReference();
-//        mTest = mDatabase.child("Users");
-//        setContentView(R.layout.activity_main);
-//
-//        submit = findViewById(R.id.button);
-//        submit.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                String name = "User 1";
-//                User u = new User( "Nishant", "1", "n@sinha" );
-//                mDatabase.child(name).setValue(u);
-//            }
-//        });
-//    }
-//}
-
