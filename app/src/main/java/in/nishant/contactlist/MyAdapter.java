@@ -64,7 +64,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         // - replace the contents of the view with that element
         final User name = values.get(position);
         holder.name.setText(name.name);
-        holder.phone.setText("Footer: " + name.phone);
+        holder.phone.setText("Number: " + name.phone);
     }
 
     // Return the size of your dataset (invoked by the layout manager)

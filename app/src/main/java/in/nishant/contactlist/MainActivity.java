@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +48,13 @@ public class MainActivity extends Activity {
     public void setDatabase() {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mUsersList = mDatabase.child("Users");
+//      Generate 1000 users.
+//        for( int i = 0; i < 1000; i++ )
+//        {
+//            User u = new User(Integer.toString(i), Integer.toString(i), Integer.toString(i), "false" );
+//            mUsersList.child(Integer.toString(i)).setValue(u);
+//        }
+
         ValueEventListener contactListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

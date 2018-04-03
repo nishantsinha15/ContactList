@@ -8,6 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="CustomTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <item name="colorPrimary">#1b5e20</item>
+        <item name="colorPrimaryDark">#003300</item>
+        <item name="colorAccent">#ffeb3b</item>
+    </style>
+
     <style name="page_background_wh">
 
         <item name="android:background">@drawable/regular_background</item>
